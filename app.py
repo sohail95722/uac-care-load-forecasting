@@ -52,6 +52,14 @@ if missing:
 
 df[DATE_COL] = pd.to_datetime(df[DATE_COL], errors="coerce")
 for col in [HHS_COL, DISCHARGE_COL]:
+    # Values such as "2,484" contain thousands separators; remove them before conversion.
+    df[col] = (
+        df[col]
+        .astype(str)
+        .str.replace(",", "", regex=False)
+        .str.strip()
+        .replace({"": None, "nan": None, "None": None})
+    )
     df[col] = pd.to_numeric(df[col], errors="coerce")
 
 df = df.dropna(subset=[DATE_COL]).sort_values(DATE_COL).reset_index(drop=True)
